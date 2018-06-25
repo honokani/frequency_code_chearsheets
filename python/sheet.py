@@ -38,13 +38,13 @@ def findFileNames(fPath=getCurrDirPath(), ext=""):
     if (ext==""):
         return files
     else:
-        found = []
+        founds = []
         ext = ext.lower()
         tgt = re.compile("\."+ext+"$")
         for f in files:
             if (not None==tgt.search(f.lower())):
-                found.append(f)
-        return found
+                founds.append(f)
+        return founds
 
 
 
@@ -55,9 +55,9 @@ def inputList(sp=" "):
     return l.split(sp)
 
 def inputList_noEmpStr(sp=" "):
-    return list(filter(lambda x:not x=="", input2List(sp)))
+    return list(filter(lambda x:not x=="", inputList(sp)))
 
-def inputSet_byLen():
+def inputSet_withLen():
     mayDigit = input()
     if (mayDigit.isdigit() and mayDigit.isalnum()):
         n = int(mayDigit)
@@ -70,12 +70,25 @@ def inputSet_byLen():
         print("NaN!")
         return mayDigit, []
 
+def inputLists_withLen():
+    mayDigit = input()
+    if (mayDigit.isdigit() and mayDigit.isalnum()):
+        n = int(mayDigit)
+        if (0<n):
+            return n, list(map(lambda _: inputList_noEmpStr(), range(n)))
+        else:
+            print("Negative!")
+            return n, []
+    else:
+        print("NaN!")
+        return mayDigit, []
 
-def inputSet_byLen_noEmpStr(sp=" "):
-    return (lambda x,y: (x, list(filter(lambda z: not z=="", y))))(inputSet_byLen())
-
-
-
-
-
+def inputLists_untilEnd():
+    ls = []
+    while True:
+        l = input()
+        if (l==""):
+            return ls
+        else:
+            ls.append(list(filter(lambda x:not x=="", l.split(" "))))
 

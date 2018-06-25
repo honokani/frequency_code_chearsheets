@@ -1,1 +1,1 @@
-# frequency_code_chearsheets
+# frequency_code_cheatsheets

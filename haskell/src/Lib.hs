@@ -6,9 +6,10 @@ import Control.Applicative
 
 someFunc :: IO ()
 someFunc = do
-    print =<< getNL_and_Chrs
+    print =<< getLN_and_Chrs
 
 ------------------------------------------------------------------------
+-- # input     -> outout
 -- "10 20 aaa"    ["10", "20", "aaa"]
 getWords :: IO [String]
 getWords = words <$> getLine
@@ -19,14 +20,14 @@ getNumbers :: (Num a, Read a) => IO [a]
 getNumbers = map read.words <$> getLine
 
 ------------------------------------------------------------------------
--- # input -> output
--- "2"        [["abc", "zzzz"],["opqr"]]
+-- # input    -> output
+-- "2"           [["abc", "zzzz"],["opqr"]]
 -- "abc zzzz"
 -- "opqr"
-getN_and_Strs :: IO [[String]]
-getN_and_Strs = do
-    n <- read.head.words <$> getLine
-    mapM (\_ -> getWords) [1..n]
+getL_and_Strs :: IO [[String]]
+getL_and_Strs = do
+    l <- read.head.words <$> getLine
+    mapM (\_ -> getWords) [1..l]
     where
         getWords :: IO [String]
         getWords = words <$> getLine
@@ -35,10 +36,10 @@ getN_and_Strs = do
 -- "2"        [[12, 34],[567]]
 -- "12 34"
 -- "567"
-getN_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
-getN_and_Nums = do
-    n <- read.head.words <$> getLine
-    mapM (\_ -> getNumbers) [1..n]
+getL_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
+getL_and_Nums = do
+    l <- read.head.words <$> getLine
+    mapM (\_ -> getNumbers) [1..l]
     where
         getNumbers :: (Num a, Read a) => IO [a]
         getNumbers = map read.words <$> getLine
@@ -48,17 +49,17 @@ getN_and_Nums = do
 -- "2 1"           [["abc"],["opqr"]]
 -- "abc zzzz"
 -- "opqr 11 lm"
-getNL_and_Strs :: IO [[String]]
-getNL_and_Strs = do
-    (n, l) <- mapTuple read.head.listToTuples.words <$> getLine
-    mapM (\_ -> take l <$> getWords) [1..n]
+getLN_and_Strs :: IO [[String]]
+getLN_and_Strs = do
+    (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
+    mapM (\_ -> take n <$> getWords) [1..l]
     where
-        mapTuple :: (a -> b) -> (a,a) -> (b,b)
-        mapTuple f (a1,a2) = (f a1, f a2)
-        listToTuples :: [a] -> [(a,a)]
-        listToTuples [] = []
-        listToTuples (x:[]) = []
-        listToTuples (x:y:zs) = (x,y) : listToTuples zs
+        mapT2 :: (a -> b) -> (a,a) -> (b,b)
+        mapT2 f (a1,a2) = (f a1, f a2)
+        listToT2s :: [a] -> [(a,a)]
+        listToT2s [] = []
+        listToT2s (x:[]) = []
+        listToT2s (x:y:zs) = (x,y) : listToT2s zs
         getWords :: IO [String]
         getWords = words <$> getLine
 
@@ -66,17 +67,17 @@ getNL_and_Strs = do
 -- "2 2"            [[12, 34],[567,89]]
 -- "12 34 555"
 -- "567 89 0000"
-getNL_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
-getNL_and_Nums = do
-    (n, l) <- mapTuple read.head.listToTuples.words <$> getLine
-    mapM (\_ -> take l <$> getNumbers) [1..n]
+getLN_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
+getLN_and_Nums = do
+    (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
+    mapM (\_ -> take n <$> getNumbers) [1..l]
     where
-        mapTuple :: (a -> b) -> (a,a) -> (b,b)
-        mapTuple f (a1,a2) = (f a1, f a2)
-        listToTuples :: [a] -> [(a,a)]
-        listToTuples [] = []
-        listToTuples (x:[]) = []
-        listToTuples (x:y:zs) = (x,y) : listToTuples zs
+        mapT2 :: (a -> b) -> (a,a) -> (b,b)
+        mapT2 f (a1,a2) = (f a1, f a2)
+        listToT2s :: [a] -> [(a,a)]
+        listToT2s [] = []
+        listToT2s (x:[]) = []
+        listToT2s (x:y:zs) = (x,y) : listToT2s zs
         getNumbers :: (Num a, Read a) => IO [a]
         getNumbers = map read.words <$> getLine
 
@@ -84,16 +85,16 @@ getNL_and_Nums = do
 -- "2 1"      ["a","o"]
 -- "abc"
 -- "opqr"
-getNL_and_Chrs :: IO [String]
-getNL_and_Chrs = do
-    (n, l) <- mapTuple read.head.listToTuples.words <$> getLine
-    mapM (\_ -> take l.head <$> getWords) [1..n]
+getLN_and_Chrs :: IO [String]
+getLN_and_Chrs = do
+    (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
+    mapM (\_ -> take n.head <$> getWords) [1..l]
     where
-        mapTuple :: (a -> b) -> (a,a) -> (b,b)
-        mapTuple f (a1,a2) = (f a1, f a2)
-        listToTuples :: [a] -> [(a,a)]
-        listToTuples [] = []
-        listToTuples (x:[]) = []
-        listToTuples (x:y:zs) = (x,y) : listToTuples zs
+        mapT2 :: (a -> b) -> (a,a) -> (b,b)
+        mapT2 f (a1,a2) = (f a1, f a2)
+        listToT2s :: [a] -> [(a,a)]
+        listToT2s [] = []
+        listToT2s (x:[]) = []
+        listToT2s (x:y:zs) = (x,y) : listToT2s zs
 
 ------------------------------------------------------------------------

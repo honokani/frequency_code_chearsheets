@@ -27,7 +27,7 @@ getNumbers = map read.words <$> getLine
 getL_and_Strs :: IO [[String]]
 getL_and_Strs = do
     l <- read.head.words <$> getLine
-    mapM (\_ -> getWords) [1..l]
+    replicateM l getWords
     where
         getWords :: IO [String]
         getWords = words <$> getLine
@@ -39,7 +39,7 @@ getL_and_Strs = do
 getL_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
 getL_and_Nums = do
     l <- read.head.words <$> getLine
-    mapM (\_ -> getNumbers) [1..l]
+    replicateM l getNumbers
     where
         getNumbers :: (Num a, Read a) => IO [a]
         getNumbers = map read.words <$> getLine
@@ -52,7 +52,7 @@ getL_and_Nums = do
 getLN_and_Strs :: IO [[String]]
 getLN_and_Strs = do
     (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
-    mapM (\_ -> take n <$> getWords) [1..l]
+    replicateM l $ take n.<$> getWords
     where
         mapT2 :: (a -> b) -> (a,a) -> (b,b)
         mapT2 f (a1,a2) = (f a1, f a2)
@@ -70,7 +70,7 @@ getLN_and_Strs = do
 getLN_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
 getLN_and_Nums = do
     (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
-    mapM (\_ -> take n <$> getNumbers) [1..l]
+    replicateM l $ take n.<$> getNumbers
     where
         mapT2 :: (a -> b) -> (a,a) -> (b,b)
         mapT2 f (a1,a2) = (f a1, f a2)
@@ -88,7 +88,7 @@ getLN_and_Nums = do
 getLN_and_Chrs :: IO [String]
 getLN_and_Chrs = do
     (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
-    mapM (\_ -> take n.head <$> getWords) [1..l]
+    replicateM l $ take n.head <$> getWords
     where
         mapT2 :: (a -> b) -> (a,a) -> (b,b)
         mapT2 f (a1,a2) = (f a1, f a2)
@@ -96,5 +96,7 @@ getLN_and_Chrs = do
         listToT2s [] = []
         listToT2s (x:[]) = []
         listToT2s (x:y:zs) = (x,y) : listToT2s zs
+        getWords :: IO [String]
+        getWords = words <$> getLine
 
 ------------------------------------------------------------------------

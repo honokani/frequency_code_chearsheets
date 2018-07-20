@@ -3,10 +3,11 @@ module Lib
     ) where
 
 import Control.Applicative
+import Control.Monad
 
 someFunc :: IO ()
 someFunc = do
-    print =<< getLN_and_Chrs
+    print =<< getData_and_Nnums
 
 ------------------------------------------------------------------------
 -- # input     -> outout
@@ -52,7 +53,7 @@ getL_and_Nums = do
 getLN_and_Strs :: IO [[String]]
 getLN_and_Strs = do
     (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
-    replicateM l $ take n.<$> getWords
+    replicateM l $ take n <$> getWords
     where
         mapT2 :: (a -> b) -> (a,a) -> (b,b)
         mapT2 f (a1,a2) = (f a1, f a2)
@@ -70,7 +71,7 @@ getLN_and_Strs = do
 getLN_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [[a]]
 getLN_and_Nums = do
     (l, n) <- mapT2 read.head.listToT2s.words <$> getLine
-    replicateM l $ take n.<$> getNumbers
+    replicateM l $ take n <$> getNumbers
     where
         mapT2 :: (a -> b) -> (a,a) -> (b,b)
         mapT2 f (a1,a2) = (f a1, f a2)
@@ -100,3 +101,23 @@ getLN_and_Chrs = do
         getWords = words <$> getLine
 
 ------------------------------------------------------------------------
+-- # input     -> output
+-- "100 2"        (100, [12, 34])
+-- "12 34 555"
+getData_and_Nnums :: (Num a, Read a, Enum a, Show a) => IO (Int, [a])
+getData_and_Nnums = do
+    (d, n) <- mapT2 read.head.listToT2s.words <$> getLine
+    xs <- take n <$> getNumbers
+    return (d, xs)
+    where
+        mapT2 :: (a -> b) -> (a,a) -> (b,b)
+        mapT2 f (a1,a2) = (f a1, f a2)
+        listToT2s :: [a] -> [(a,a)]
+        listToT2s [] = []
+        listToT2s (x:[]) = []
+        listToT2s (x:y:zs) = (x,y) : listToT2s zs
+        getNumbers :: (Num a, Read a) => IO [a]
+        getNumbers = map read.words <$> getLine
+
+------------------------------------------------------------------------
+

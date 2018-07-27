@@ -21,6 +21,18 @@ getNumbers :: (Num a, Read a) => IO [a]
 getNumbers = map read.words <$> getLine
 
 ------------------------------------------------------------------------
+-- # input     -> output
+-- "2"            [12, 34]
+-- "12 34 567"
+getN_and_Nums :: (Num a, Read a, Enum a, Show a) => IO [a]
+getN_and_Nums = do
+    n <- read.head.words <$> getLine
+    take n.<$> getNumbers
+    where
+        getNumbers :: (Num a, Read a) => IO [a]
+        getNumbers = map read.words <$> getLine
+
+------------------------------------------------------------------------
 -- # input    -> output
 -- "2"           [["abc", "zzzz"],["opqr"]]
 -- "abc zzzz"

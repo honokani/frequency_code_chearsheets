@@ -7,7 +7,7 @@ import Control.Monad
 
 someFunc :: IO ()
 someFunc = do
-    print =<< getIN_and_InfoWithNums
+    print =<< getNI_and_InfoWithNums
 
 ------------------------------------------------------------------------
 -- # input     -> outout
@@ -119,34 +119,34 @@ getLN_and_Chrs = do
 
 ------------------------------------------------------------------------
 -- # input     -> output
--- "100 2"        ("100", ["ab", "cd"])
+-- "2 100"        ("100", ["ab", "cd"])
 -- "ab cd eee"
-getIN_and_InfoWithStrs:: IO (String, [String])
-getIN_and_InfoWithStrs = do
-    (i, n) <- mapT2snd read.listToT2.take 2.words <$> getLine
+getNI_and_InfoWithStrs:: IO (String, [String])
+getNI_and_InfoWithStrs = do
+    (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getWords
     return (i, xs)
     where
         listToT2 :: [a] -> (a,a)
         listToT2 (x:y:_) = (x,y)
-        mapT2snd :: (a -> b) -> (a,a) -> (a,b)
-        mapT2snd f (a1,a2) = (a1, f a2)
+        mapT2fst :: (a -> b) -> (a,a) -> (b,a)
+        mapT2fst f (a1,a2) = (f a1, a2)
         getWords :: IO [String]
         getWords = words <$> getLine
 
 -- # input     -> output
--- "100 2"        ("100", [12, 34])
+-- "2 100"        ("100", [12, 34])
 -- "12 34 555"
-getIN_and_InfoWithNums:: (Num a, Read a, Enum a) => IO (String, [a])
-getIN_and_InfoWithNums = do
-    (i, n) <- mapT2snd read.listToT2.take 2.words <$> getLine
+getNI_and_InfoWithNums:: (Num a, Read a, Enum a) => IO (String, [a])
+getNI_and_InfoWithNums = do
+    (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getNumbers
     return (i, xs)
     where
         listToT2 :: [a] -> (a,a)
         listToT2 (x:y:_) = (x,y)
-        mapT2snd :: (a -> b) -> (a,a) -> (a,b)
-        mapT2snd f (a1,a2) = (a1, f a2)
+        mapT2fst :: (a -> b) -> (a,a) -> (b,a)
+        mapT2fst f (a1,a2) = (f a1, a2)
         getNumbers :: (Num a, Read a) => IO [a]
         getNumbers = map read.words <$> getLine
 

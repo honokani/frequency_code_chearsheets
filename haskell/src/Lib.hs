@@ -119,13 +119,13 @@ getLN_and_Chrs = do
 
 ------------------------------------------------------------------------
 -- # input     -> output
--- "2 100"        ("100", ["ab", "cd"])
+-- "2 100"        (["ab", "cd"], "100")
 -- "ab cd eee"
-getNI_and_InfoWithStrs:: IO (String, [String])
+getNI_and_InfoWithStrs:: IO ([String], String)
 getNI_and_InfoWithStrs = do
     (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getWords
-    return (i, xs)
+    return (xs, i)
     where
         listToT2 :: [a] -> (a,a)
         listToT2 (x:y:_) = (x,y)
@@ -135,13 +135,13 @@ getNI_and_InfoWithStrs = do
         getWords = words <$> getLine
 
 -- # input     -> output
--- "2 100"        ("100", [12, 34])
+-- "2 100"        ([12, 34], "100")
 -- "12 34 555"
-getNI_and_InfoWithNums:: (Num a, Read a, Enum a) => IO (String, [a])
+getNI_and_InfoWithNums:: (Num a, Read a, Enum a) => IO ([a], String)
 getNI_and_InfoWithNums = do
     (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getNumbers
-    return (i, xs)
+    return (xs, i)
     where
         listToT2 :: [a] -> (a,a)
         listToT2 (x:y:_) = (x,y)

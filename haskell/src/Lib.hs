@@ -7,7 +7,7 @@ import Control.Monad
 
 someFunc :: IO ()
 someFunc = do
-    print =<< getNI_and_InfoWithNums
+    print =<< getNI_and_NumsWithInfo
 
 ------------------------------------------------------------------------
 -- # input     -> outout
@@ -121,8 +121,8 @@ getLN_and_Chrs = do
 -- # input     -> output
 -- "2 100"        (["ab", "cd"], "100")
 -- "ab cd eee"
-getNI_and_InfoWithStrs:: IO ([String], String)
-getNI_and_InfoWithStrs = do
+getNI_and_StrsWithInfo:: IO ([String], String)
+getNI_and_StrsWithInfo = do
     (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getWords
     return (xs, i)
@@ -137,8 +137,8 @@ getNI_and_InfoWithStrs = do
 -- # input     -> output
 -- "2 100"        ([12, 34], "100")
 -- "12 34 555"
-getNI_and_InfoWithNums:: (Num a, Read a, Enum a) => IO ([a], String)
-getNI_and_InfoWithNums = do
+getNI_and_NumsWithInfo:: (Num a, Read a, Enum a) => IO ([a], String)
+getNI_and_NumsWithInfo = do
     (n, i) <- mapT2fst read.listToT2.take 2.words <$> getLine
     xs <- take n <$> getNumbers
     return (xs, i)

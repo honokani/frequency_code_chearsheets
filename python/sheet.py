@@ -33,7 +33,7 @@ def getContetsNames(fPath=getCurrDirPath()):
     return dirs, files
 
 import re
-def findFileNames(fPath=getCurrDirPath(), ext=""):
+def findFileByExt(fPath=getCurrDirPath(), ext=""):
     _, files = getContetsNames(fPath)
     if (ext==""):
         return files
@@ -41,6 +41,19 @@ def findFileNames(fPath=getCurrDirPath(), ext=""):
         founds = []
         ext = ext.lower()
         tgt = re.compile("\."+ext+"$")
+        for f in files:
+            if (not None==tgt.search(f.lower())):
+                founds.append(f)
+        return founds
+
+def findFileByFullname(fPath=getCurrDirPath(), fullname=""):
+    _, files = getContetsNames(fPath)
+    if (fullname==""):
+        return files
+    else:
+        founds = []
+        fullname = fullname.lower()
+        tgt = re.compile("^{}$".format(fullname))
         for f in files:
             if (not None==tgt.search(f.lower())):
                 founds.append(f)

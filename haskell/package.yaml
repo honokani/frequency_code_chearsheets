@@ -24,6 +24,9 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+  - directory
+  - filepath
 
 executables:
   haskell-exe:

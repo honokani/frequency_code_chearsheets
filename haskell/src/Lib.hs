@@ -4,10 +4,16 @@ module Lib
 
 import Control.Applicative
 import Control.Monad
+-- my modules
+import PathControl         as PC
+import System.Directory    as SD
 
 someFunc :: IO ()
 someFunc = do
-    print =<< getNI_and_NumsWithInfo
+    --print =<< PC.findPictures_Png =<< PC.getCurrDirPath
+    print =<< PC.findFileByExt PC.MD <$> (PC.getContentNames =<< PC.getCurrDirPath)
+    print $ PC.mFilter [(==0)] [0,1,2,0]
+    print $ PC.mFilter [(==0),(\x -> x+1==1)] [0,1,2,0]
 
 ------------------------------------------------------------------------
 -- # input     -> outout

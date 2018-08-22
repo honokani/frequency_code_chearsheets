@@ -46,18 +46,3 @@ findFileByExt ex (_,fs) = found
         found = filter (searchExt ex) fs
         searchExt ex f = elem (map toLower.snd.SFP.splitExtension $ f) $ getExtSpellings ex
 
-
-mFilter syms conds = filter (struct sym conds (\_ -> True))
-    where
-        struct [] i = i
-        struct (a:as) i = struct as (\x -> sym (a x) (i x))
-
-mFilterA = mFilter (&&)
-
-
-mFilterP (ands,ors) ls = 
-    where
-        combined = struct (&&) ands && struct (||) ors
-        struct [] i = i
-        struct (a:as) i = struct as (\x -> sym (a x) (i x))
-

@@ -14,11 +14,11 @@ data Exts = PNG
 
 getExtSpellings :: Exts -> [String]
 getExtSpellings es = case es of
-    JPG  -> [".jpg",".jpeg"]
-    PNG  -> [".png"]
     GIF  -> [".gif"]
-    WEBP -> [".webp"]
+    JPG  -> [".jpg",".jpeg"]
     MD   -> [".md"]
+    PNG  -> [".png"]
+    WEBP -> [".webp"]
 
 
 getCurrDirPath :: IO FilePath

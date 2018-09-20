@@ -1,3 +1,5 @@
+{-# Language MultiWayIf #-}
+
 module Lib
     ( runPlotting
     ) where
@@ -8,12 +10,11 @@ import           System.Console.ANSI
 import           Control.Monad
 
 data Event = Quit
-           | KB String
+           | KB Char
            deriving (Show, Eq)
 
 runPlotting :: IO ()
 runPlotting = do
-
     status <- newEmptyMVar :: IO (MVar Event)
     CC.forkIO $ forM_ (cycle [0]) $ \_ -> do
         inputKeyboard status
@@ -42,7 +43,7 @@ checkLiving _    = True
 activateEvent :: Event -> IO ()
 activateEvent e = case e of
     Quit -> return ()
-    KB s -> printKB s
+    KB c -> printKB [c]
 
 recieveEvent :: (MVar Event) -> IO Event
 recieveEvent mv = do
@@ -53,7 +54,7 @@ inputKeyboard :: (MVar Event) -> IO ()
 inputKeyboard mv = do
     CC.threadDelay 10
     l <- getLine
-    if l=="quit" then
+    if l=='q' then
         putMVar mv $ Quit
     else
         putMVar mv $ KB l
@@ -61,7 +62,7 @@ inputKeyboard mv = do
 printKB s = do
     clearScreen
     setCursorPosition　1 1
-    putStrLn "command - quit: quit, "
+    putStrLn "command - q: quit, "
     setCursorPosition　2 1
     putStrLn s
 

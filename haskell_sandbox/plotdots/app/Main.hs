@@ -3,5 +3,5 @@ module Main where
 import Lib
 
 main :: IO ()
-main = runPlotting
+main = activateApp
 

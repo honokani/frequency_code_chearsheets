@@ -1,15 +1,9 @@
 {-# Language MultiWayIf #-}
-module Main where
+module KeyboardUtil where
 
 import           System.IO
 import qualified Data.HashMap as HM
 import           Data.Char          (chr, ord)
-
-
-main = do
-    hSetBuffering stdin NoBuffering
-    hSetEcho stdin False
-    controlKeyInOut
 
 
 data Options = Sht
@@ -41,30 +35,12 @@ data KeyKinds = Undef
               | Mod Options KeyKinds
               deriving (Show, Eq)
 
-controlKeyInOut = do
-    prompt "> "
-    s <- inputKey
-    putStrLn.show.findKey $ s
-    controlKeyInOut
-    where
-        prompt p = do
-            putStr p
-            --hFlush stdout
-        inputKey = do
-            c <- getChar
-            b <- hReady stdin
-            if  | b -> do
-                    (c:) <$> inputKey
-                | otherwise -> do
-                    return [c]
-        findKey [c] = case HM.lookup c singleKeyMap of
-            Just k  -> k
-            Nothing -> Undef
-        findKey s = case HM.lookup s multiKeyMap of
-            Just k  -> k
-            Nothing -> Undef
-
-
+findKey [c] = case HM.lookup c singleKeyMap of
+    Just k  -> k
+    Nothing -> Undef
+findKey s = case HM.lookup s multiKeyMap of
+    Just k  -> k
+    Nothing -> Undef
 
 singleKeyMap = HM.fromList $ alphNumMark ++ specialKey
     where

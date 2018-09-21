@@ -1,68 +1,30 @@
 {-# Language MultiWayIf #-}
 
 module Lib
-    ( runPlotting
+    ( activateApp
     ) where
 
-import qualified Control.Concurrent      as CC (forkIO, threadDelay)
+import qualified Control.Concurrent      as CC (forkIO, threadDelay, killThread)
 import           Control.Concurrent.MVar
-import           System.Console.ANSI
 import           Control.Monad
+import           System.IO
+-- my modules
+import           InputController
+import           TimingController
 
-data Event = Quit
-           | KB Char
-           deriving (Show, Eq)
+activateApp = do
+    hSetBuffering stdin NoBuffering
+    hSetEcho stdin False
+    run mainAction
 
-runPlotting :: IO ()
-runPlotting = do
-    status <- newEmptyMVar :: IO (MVar Event)
-    CC.forkIO $ forM_ (cycle [0]) $ \_ -> do
-        inputKeyboard status
+run action = do
+    (sKey,kid) <- waitForInput
+    --(sTiming,tid) <- countTiming
+    action sKey
+    CC.killThread kid
 
-    printKB $ "start"
-    untilLiving $ recieveEvent status
-    printKB $ "end"
-
-
-seconds :: Int -> Int
-seconds n = n*1000000
-
-
-untilLiving :: IO Event -> IO ()
-untilLiving act = do
-    e <- act
-    if checkLiving e then do
-        activateEvent e
-        untilLiving act
-    else
-        printKB $ "quited"
-
-checkLiving Quit = False
-checkLiving _    = True
-
-activateEvent :: Event -> IO ()
-activateEvent e = case e of
-    Quit -> return ()
-    KB c -> printKB [c]
-
-recieveEvent :: (MVar Event) -> IO Event
-recieveEvent mv = do
-    CC.threadDelay 10
-    takeMVar mv
-
-inputKeyboard :: (MVar Event) -> IO ()
-inputKeyboard mv = do
-    CC.threadDelay 10
-    l <- getLine
-    if l=='q' then
-        putMVar mv $ Quit
-    else
-        putMVar mv $ KB l
-
-printKB s = do
-    clearScreen
-    setCursorPosition　1 1
-    putStrLn "command - q: quit, "
-    setCursorPosition　2 1
-    putStrLn s
+mainAction sKey = do
+    printKB $ "start."
+    untilLiving sKey $ return ()
+    printKB $ "end."
 

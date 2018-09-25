@@ -1,59 +1,47 @@
 {-# Language MultiWayIf #-}
-module KeyboardUtil where
+
+module Keyboard.Controller where
 
 import           System.IO
+import           Data.Maybe         (fromMaybe)
 import qualified Data.HashMap as HM
 import           Data.Char          (chr, ord)
+-- my modules
+import           Events             (Events(..))
+import           Keyboard           (KeyKinds(..),Options(..),Dirs(..))
 
 
-data Options = Sht
-             | Ctr
-             | Alt
-             deriving (Show,Eq)
+getEventFromKeyboard :: IO Events
+getEventFromKeyboard =  keyToEvent.findKey <$> getKeyboardInput
 
-data Dirs = Up
-          | Dn
-          | Ri
-          | Lf
-          deriving (Show,Eq,Enum)
 
-data KeyKinds = Undef
-              | Chara Char
-              | Arrow Dirs
-              | Func Int
-              | Return
-              | Escape
-              | Space
-              | Tab
-              | Backspace
-              | Home
-              | Insert
-              | Delete
-              | End
-              | PageUp
-              | PageDn
-              | Mod Options KeyKinds
-              deriving (Show, Eq)
+getKeyboardInput :: IO String
+getKeyboardInput = do
+    c <- getChar
+    b <- hReady stdin
+    (c:) <$> if b then getKeyboardInput else return []
 
-findKey [c] = case HM.lookup c singleKeyMap of
-    Just k  -> k
-    Nothing -> Undef
-findKey s = case HM.lookup s multiKeyMap of
-    Just k  -> k
-    Nothing -> Undef
+keyToEvent :: KeyKinds -> Events
+keyToEvent k = case k of
+    Chara c -> if c=='q' then Quit else KB k
+    _       -> KB k
+
+
+findKey [c] = fromMaybe Undef $ HM.lookup c singleKeyMap
+findKey s   = fromMaybe Undef $ HM.lookup s multiKeyMap
 
 singleKeyMap = HM.fromList $ alphNumMark ++ specialKey
     where
         [base, end] = map ord [' ', '~']
         alphNumMark = [ (c, Chara c) | n <- [0..(end - base)], let c = chr $ base + n]
-        specialKey = [ ('\n'   , Return)
-                     , ('\r'   , Return)
-                     , ('\ESC' , Escape)
-                     , (' '    , Space)
-                     , ('\t'   , Tab)
-                     , ('\b'   , Backspace)
-                     , ('\DEL' , Delete)
-                     ]
+        specialKey  = [ ('\n'   , Return)
+                      , ('\r'   , Return)
+                      , ('\ESC' , Escape)
+                      , (' '    , Space)
+                      , ('\t'   , Tab)
+                      , ('\b'   , Backspace)
+                      , ('\DEL' , Delete)
+                      ]
 
 multiKeyMap = HM.fromList $ arrow ++ func ++ specialKey
     where

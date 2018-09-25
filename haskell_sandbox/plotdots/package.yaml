@@ -27,6 +27,7 @@ library:
   source-dirs: src
   dependencies:
     - hashmap
+    - mtl
 
 executables:
   plotdots-exe:

@@ -2,14 +2,17 @@
 
 module TimingController where
 
-import qualified Control.Concurrent      as CC (forkIO, threadDelay, killThread)
+import           Control.Concurrent      (ThreadId, forkIO, threadDelay, killThread)
 import           Control.Concurrent.MVar
 import           Control.Monad
 
+type Tick = ()
+
+countTiming :: Int -> IO (MVar Tick, ThreadId)
 countTiming fps = do
     tStatus <- newMVar ()
-    id <- CC.forkIO $ forM_ (cycle [()]) $ \_ -> do
+    id <- forkIO $ forM_ (repeat ()) $ \_ -> do
         tryPutMVar tStatus ()
-        CC.threadDelay $ div 100000 fps
-    return $ (tStatus, id)
+        threadDelay $ div 100000 fps
+    return (tStatus, id)
 

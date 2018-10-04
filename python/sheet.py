@@ -54,11 +54,23 @@ def findFileByFullname(fPath=getCurrDirPath(), fullname=""):
         founds = []
         fullname = fullname.lower()
         tgt = re.compile("^{}$".format(fullname))
+        for d in dirs:
+            if (not None==tgt.search(d.lower())):
+                founds.append(d)
+        return founds
+
+def findDirByFullname(fPath=getCurrDirPath(), fullname=""):
+    dirs, _ = getContetsNames(fPath)
+    if (fullname==""):
+        return dirs
+    else:
+        founds = []
+        fullname = fullname.lower()
+        tgt = re.compile("^{}$".format(fullname))
         for f in files:
             if (not None==tgt.search(f.lower())):
                 founds.append(f)
         return founds
-
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

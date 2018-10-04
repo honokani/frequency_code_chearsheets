@@ -23,7 +23,7 @@ getKeyboardInput = do
 
 keyToEvent :: KeyKinds -> Events
 keyToEvent k = case k of
-    Chara c -> if c=='q' then Quit else KB k
+    Escape  -> Quit
     _       -> KB k
 
 

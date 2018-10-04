@@ -4,7 +4,7 @@ module Lib
     ( activateApp
     ) where
 
-import           Control.Concurrent             (forkIO, threadDelay, killThread)
+import           Data.Ratio
 import           Control.Concurrent.MVar
 import           Control.Monad
 import           System.IO
@@ -12,29 +12,33 @@ import           Control.Monad.State.Lazy       (runStateT)
 -- my modules
 import           Events                         (Events(..))
 import qualified Events.Controller        as EC
-import qualified TimingController         as TC
+import qualified Timing                   as TC
+import           View
 
 
-fps = 30
+fps   = 30 % 1 :: Rational
+width = 80     :: Int
+hight = 20     :: Int
+
 activateApp :: IO ()
-activateApp = do
-    runAct mainAction
+activateApp = runAct mainAction
 
+runAct :: (Events -> IO ()) -> IO ()
+runAct action = if
+    | width <= 0 || hight <= 0 -> return ()
+    | otherwise -> do
+        hSetBuffering stdin NoBuffering
+        hSetEcho stdin False
+        startView
+        EC.repeatActionForEachTimimg info $ EC.untilQuit action
+        endView
+    where
+        info = (fps,(width,hight))
 
-runAct :: IO () -> IO ()
-runAct action = do
-    hSetBuffering stdin NoBuffering
-    hSetEcho stdin False
-    EC.printKB "start."
-    (eStat,eId) <- EC.waitForEvents
-    (tStat,tId) <- TC.countTiming fps
-    (`runStateT` (eStat,tStat)) $ EC.untilQuit action
-    killThread tId
-    killThread eId
-    EC.printKB "end."
+mainAction :: Events -> IO ()
+mainAction e = do
+    keyboardEvents e
 
-
-mainAction :: IO ()
-mainAction = do
-    EC.printKB "hi"
+keyboardEvents e = case e of
+    (KB k) -> printInput k
 

@@ -12,20 +12,19 @@ import           System.IO
 import           System.Console.ANSI
 
 
-
-initializeView s = do
+initializeView size s = do
     clearScreen
-    setCursorPosition　1 1
+    setCursorPosition 1 1
     putStrLn "command : ESC -> quit"
-    printInput s
+    printInput size s
 
-startView = initializeView "start."
+startView size = initializeView size "start."
 
-endView = initializeView "end."
+endView size   = initializeView size "end."
 
-printInput :: (Show a) => a -> IO ()
-printInput s = do
-    setCursorPosition　2 1
+--printInput :: (Show a) => a -> IO ()
+printInput size s = do
+    setCursorPosition (snd size) 1
     putStrLn $ ">> " ++ show s
 
 

@@ -4,6 +4,10 @@ module Keyboard where
 import           System.IO
 
 
+data KeyToggle a = Pushing  a
+                 | Released a
+                 deriving (Show)
+
 data Options = Sht
              | Ctr
              | Alt

@@ -2,71 +2,60 @@
 
 module Events.Controller where
 
-import           Control.Concurrent            (forkIO,threadDelay,ThreadId,killThread)
+import           Control.Concurrent              (forkIO,threadDelay,ThreadId,killThread)
 import           Control.Concurrent.MVar
-import           Control.Monad                 (forM_)
-import           Control.Monad.State.Lazy      (StateT, runStateT, get, put, lift)
+import           Control.Monad                   (forever)
+import           Control.Monad.State.Lazy        (StateT, runStateT, get, put, lift)
 -- my modules
-import           Events                        (Events(..))
-import           Keyboard.Controller           (getEventFromKeyboard)
-import qualified Timing                  as TC
+import           Events                          (Events(..))
+import           Keyboard                        (KeyToggle(..),KeyKinds(..),Options(..),Dirs(..))
+import           Keyboard.Controller             (startKeyWaiting)
+import qualified Timing                  as Time
 import           View
-
-
-waitForEvents :: IO (MVar Events, ThreadId)
-waitForEvents = do
-    threadDelay 10
-    waitForInputKeyboad
-
-waitForInputKeyboad :: IO (MVar Events, ThreadId)
-waitForInputKeyboad = do
-    kStatus <- newEmptyMVar :: IO (MVar Events)
-    id <- forkIO $ forM_ (repeat ()) $ \_ -> do
-        setKeyboardEvent kStatus
-    return (kStatus, id)
-
-setKeyboardEvent :: MVar Events -> IO ()
-setKeyboardEvent mv = getEventFromKeyboard >>= putMVar mv
 
 
 data AppState = Living
               | Dead
+              deriving (Show)
 
-untilQuit :: (Events -> IO ()) -> MVar Events -> IO AppState
-untilQuit act eS = do
-    mE <- recieveEvents eS
-    if isQuited mE then
-        return Dead
-    else do
-        activateEvent act mE
-        return Living
+
+repeatActUntilQuit :: Rational -> ((KeyToggle KeyKinds) -> IO ()) -> IO ()
+repeatActUntilQuit fps act = repeatAct fps $ untilQuit act
+
+
+untilQuit :: ((KeyToggle KeyKinds) -> IO ()) -> MVar (KeyToggle KeyKinds) -> IO AppState
+untilQuit act eState = do
+    mayEv <- tryTakeMVar eState
+    activateEvent act mayEv
     where
-        recieveEvents :: MVar Events -> IO (Maybe Events)
-        recieveEvents sKey = do
-            threadDelay 10
-            tryTakeMVar sKey
-        isQuited :: Maybe Events -> Bool
-        isQuited (Just Quit) = True
-        isQuited _           = False
         activateEvent f mE = case mE of
-            Just Quit -> return ()
-            Just x    -> f x
-            _         -> return ()
+            Nothing                          ->        return Living
+            Just (Pushing  (Keyboard.Undef)) ->        return Living
+            Just (Released (Keyboard.Undef)) ->        return Living
+            Just (Pushing  Escape)           ->        return Dead
+            Just (Released Escape)           ->        return Dead
+            Just x                           -> f x >> return Living
 
-repeatActionForEachTimimg :: (Rational,(Int,Int)) -> (MVar Events -> IO AppState) -> IO ()
-repeatActionForEachTimimg info act = do
-    tState <- TC.countTiming fps
-    (tState,tId) <- TC.countTiming fps
-    (eState,eId) <- waitForEvents
-    repeatCore tState eState
+
+repeatAct :: Rational -> (MVar (KeyToggle KeyKinds) -> IO AppState) -> IO ()
+repeatAct fps act = do
+    (tState,tId) <- Time.startCounting fps
+    (eState,eId) <- startKeyWaiting
+    repeatActCore tState eState
     killThread eId
     killThread tId
     where
-        (fps,size) = info
-        repeatCore tS eS = do
-            _ <- takeMVar tS
-            aS <- act eS
-            case aS of
+        repeatActCore tState eState = do
+            _           <- takeMVar tState
+            resultActed <- act eState
+            case resultActed of
                 Dead   -> return ()
-                Living -> repeatCore tS eS
+                Living -> repeatActCore tState eState
+
+
+keyToEvent :: KeyKinds -> Events
+keyToEvent k = case k of
+    Escape  -> Quit
+    Keyboard.Undef   -> Events.Undef
+    _       -> KB k
 

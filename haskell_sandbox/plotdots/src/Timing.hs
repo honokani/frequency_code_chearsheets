@@ -5,20 +5,21 @@ module Timing where
 import           Data.Ratio
 import           Control.Concurrent           (ThreadId, forkIO, threadDelay, killThread)
 import           Control.Concurrent.MVar
-import           Control.Monad
+import           Control.Monad                (forever)
+-- my modules
 import qualified Utils                   as U
 
 type Tick = ()
 
 oneSec :: Rational
-oneSec = 100000
+oneSec =  100000
 
-countTiming :: Rational -> IO (MVar Tick, ThreadId)
-countTiming fps = do
+startCounting :: Rational -> IO (MVar Tick, ThreadId)
+startCounting fps = do
     tStatus <- newMVar ()
     id <- forkIO $ forever $ do
-        tryPutMVar tStatus ()
         threadDelay timeSpan
+        tryPutMVar tStatus ()
     return (tStatus, id)
     where
         timeSpan = ceiling.fromRational.(/) oneSec $ fps

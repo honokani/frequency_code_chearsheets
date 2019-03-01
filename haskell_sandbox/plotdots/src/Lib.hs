@@ -8,37 +8,41 @@ import           Data.Ratio
 import           Control.Concurrent.MVar
 import           Control.Monad
 import           System.IO
-import           Control.Monad.State.Lazy       (runStateT)
+import           Control.Monad.State.Lazy           (runStateT)
 -- my modules
-import           Events                         (Events(..))
-import qualified Events.Controller        as EC
-import qualified Timing                   as TC
-import           View
-
+import           Events                             (Events(..))
+import qualified Events.Controller        as EvCtrl
+import           Keyboard                           (KeyToggle(..),KeyKinds(..),Options(..),Dirs(..))
+import           Keyboard.Controller                (startKeyWaiting)
+import qualified Timing                   as Time
+import           View                               (startView, endView, printInput)
 
 fps   = 30 % 1 :: Rational
 width = 80     :: Int
 hight = 20     :: Int
 
-activateApp :: IO ()
-activateApp = runAct mainAction
 
-runAct :: (Events -> IO ()) -> IO ()
-runAct action = if
+activateApp :: IO ()
+activateApp = if
     | width <= 0 || hight <= 0 -> return ()
     | otherwise -> do
         hSetBuffering stdin NoBuffering
         hSetEcho stdin False
-        startView
-        EC.repeatActionForEachTimimg info $ EC.untilQuit action
-        endView
+        runAct mainAction
+
+
+--runAct :: (Events -> IO ()) -> IO ()
+runAct action = do
+    startView size
+    EvCtrl.repeatActUntilQuit fps action
+    endView size
     where
-        info = (fps,(width,hight))
+        size = (width,hight)
 
-mainAction :: Events -> IO ()
-mainAction e = do
-    keyboardEvents e
 
-keyboardEvents e = case e of
-    (KB k) -> printInput k
+--mainAction :: (KeyEff KeyKinds) -> IO ()
+mainAction e = case e of
+    k -> printInput size $ show k
+    where
+        size = (width,hight)
 
